@@ -4,13 +4,11 @@ A versatile tool for osu! that can change the speed of any map you please and it
 
 **How to use it**
 
- * Select a file with a .osu extension, or select multiple files if you want to merge them.
- * Input the rate and pitch if you are changing map speeds, or input the break length between maps and the marathon name if you are merging them.
+ * Select the files that you want to change the speed of, or if you are making marathons, add all the maps that you want to merge to the queue. (You can input a rate for the maps in the marathon)
+ * If you're making marathons, enter the marathon name, marathon version (difficulty name) and the break length (miliseconds) entries.
  * Click the export map button and you are good to go!
 
 **Known Issues**
 
- * Events and TimingPoints in merged maps are slightly off
- * The pitch changes even if you type nothing in the pitch entry
- * Every map and its audio file must be in the same folder to merge maps
  * Xerate is flagged by antiviruses even though its a safe program
+ * The OD and AR entries do absolutely nothing if you're making a marathon.
