@@ -1,6 +1,6 @@
 from customtkinter import *
 from tkinter import messagebox
-from os.path import join, dirname
+from os.path import join, dirname, basename
 from os import environ
 
 from scripts.map_generator import MapExistsError, MapGenerator
@@ -15,7 +15,7 @@ class XerateApp:
         self.root = root
         self.root.title("Xerate")
         self.map_queue = []
-        # self.map_generator = MapGenerator()
+        self.map_generator = MapGenerator()
         set_appearance_mode("system")
         self.file_path = []
 
@@ -210,7 +210,7 @@ class XerateApp:
                 self.overall_difficulty_entry)
             change_map_speed_with_bpm = self.is_change_map_speed_with_bpm.get() == 1
             self.map_queue.append(
-                (rate, change_map_speed_with_bpm, overall_difficulty, approach_rate, file_path))
+                (rate, change_map_speed_with_bpm, overall_difficulty, approach_rate, self.file_path))
             self.file_label.config(
                 text=f"No files selected,{len(self.map_queue)} files in queue")
             if self.make_marathon_checkbox_bool == 1:
@@ -257,65 +257,6 @@ class XerateApp:
             self.break_length_entry.delete(0, "end")
             self.marathon_name_entry.delete(0, "end")
             self.marathon_version_entry.delete(0, "end")
-
-    def on_generate(self):
-        break_length = self.break_length_entry.get()
-        marathon_title_name = self.marathon_name_entry.get()
-        marathon_version_name = self.marathon_version_entry.get()
-        is_make_marathon = self.make_marathon_checkbox_bool.get() == 1
-
-        if not self.map_queue:
-            messagebox.showerror(
-                "No map in queue", "No maps in queue. Please add a map to queue before exporting!")
-            return
-
-        if is_make_marathon:
-            if not break_length:
-                messagebox.showerror(
-                    "No break length", "You forgot to enter a break length. Please enter a break length.")
-                return
-            else:
-                try:
-                    break_length = int(break_length)
-                except (ValueError, TypeError):
-                    messagebox.showerror(
-                        "Invalid break length", "You have entered an invalid break length. Please enter an integer.")
-                    return
-
-            if is_make_marathon and not marathon_title_name:
-                messagebox.showerror(
-                    "No marathon name", "You forgot to enter a marathon name. Please enter a marathon name.")
-                return
-
-        if is_make_marathon and len(self.map_queue) > 1:
-            try:
-                marathon_path = self.map_generator.generate_marathon(
-                    self.map_queue, break_length, marathon_title_name, marathon_version_name)
-                messagebox.showinfo("Map merging complete!", f"Map merging completed successfully! "
-                                    f"Your map is located in {marathon_path}. "
-                                    f"Press F5 in osu! to play the map.")
-
-            except Exception as e:
-                messagebox.showerror(
-                    "Could not generate marathon.", f"Marathon generation error: {e}.")
-        else:
-            for rate, is_map_speed_with_bpm, overall_difficulty, approach_rate, file_path in self.map_queue:
-                new_file_path, new_file_contents = self.map_generator.generate_single_map(
-                    rate, is_map_speed_with_bpm, overall_difficulty, approach_rate, file_path)
-                try:
-                    self.map_generator.export_new_file(
-                        new_file_path, new_file_contents)
-                except Exception as e:
-                    messagebox.showerror(
-                        "File exporting error!", f"File exporting error: {e}")
-                    return
-
-            messagebox.showinfo("Map generation complete!",
-                                "Map generation completed successfully! Press F5 in osu! to play the map.")
-
-        self.clear_selected_files()
-        self.clear_queue()
-        self.clear_entries()
 
 
 def main():

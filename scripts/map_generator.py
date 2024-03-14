@@ -1,14 +1,19 @@
+import errno
 import os
 from os.path import join, dirname, basename
 from .audio_processor import AudioProcessor
 from .map_processor import MapProcessor
 
 
+class MapExistsError(Exception):
+    pass
+
+
 class MapGenerator:
     # Class to generate maps.
 
     @staticmethod
-    def generate_marathon(map_queue, break_length, marathon_title_name, marathon_version_name) -> str:
+    def generate_marathon(map_queue, break_length, marathon_title_name, marathon_version_name, overall_difficulty, approach_rate) -> str:
         """
         Generate a marathon from a list of maps.
 
@@ -58,10 +63,20 @@ class MapGenerator:
             "AudioFilename",
             merged_audio_filename)
 
+        merged_sections["Difficulty"] = MapProcessor.change_od_and_ar(merged_sections["Difficulty"],
+                                                                      overall_difficulty,
+                                                                      approach_rate)
         new_file_content = MapProcessor.combine_map_sections(
             merged_sections)
 
-        os.makedirs(new_file_folder, exist_ok=True)
+        try:
+            os.makedirs(new_file_folder, exist_ok=False)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                raise MapExistsError("A map with this name already exists! Please use a different name.")
+            else:
+                raise OSError("You might have used a bad character (Like ?, !). Please remove bad characters from the "
+                              "marathon name.")
         MapGenerator.export_new_file(new_file_path, new_file_content)
         return new_file_path
 
